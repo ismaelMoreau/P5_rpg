@@ -1,18 +1,35 @@
 from p5 import *
+from  PIL import Image 
 
+pimg = None
+imgMask = None
 img = None
-
 def setup():
+    global pimg
     global img
+    global imgMask
     size(720, 400)
-    img = load_image("./map_sprites/tile192.jpg")
-
+    #img = Image.open("/home/ism/P5_rpg/sprites/char4/masktile000.jpg")
+    #img = Image.open("/home/ism/P5_rpg/sprites/char4/tile000.jpg")
+    # w, h = img.size
+    # pimg = PImage(w, h)
+    # pimg._img = img
+    imgMask = load_image("/home/ism/P5_rpg/sprites/char1/tile000.png")
+    #img = load_image("/home/ism/P5_rpg/sprites/char4/tile000.jpg")
+    # img = Image.composite(img, imgMask, )
+    
+    # imageMode("CENTER")
+    imgMask.blend(imgMask,"blend")
 def draw():
+    global pimg
+    global img
+    global imgMask
    
-    background(0)
-    image(img, (0, 0))
-    #image(img, (0, height / 2), (img.width / 2, img.height / 2))
+    background(0, 102, 153)
+    #image(pimg, (width / 2, height / 2))
+   
+    image(imgMask, (width / 2, height / 2))
+    #image(pimg, mouse_x, mouse_y)
 
 if __name__ == '__main__':
     run()
-

@@ -1,6 +1,6 @@
 from random import randint, choice
 from global_var import *
-import p5 as p5
+import p5
 import pandas as pd
 import numpy as np
 class Map:
@@ -10,7 +10,7 @@ class Map:
         self.walls = self.get_walls()
         self.tile_size = TILESIZE
         self.worldmap = []
-
+        self.worldmap_screen_position =p5.Vector(0,0)
 
     def rnd_grid(self, width=2):
       
@@ -51,7 +51,8 @@ class Map:
                         if col == "#" and x<WIDTH and y<HEIGHT and x>0 and y>0:
                             p5.rect((x,y),TILESIZE,TILESIZE)
                         if int(col) < 600 and x<WIDTH and y<HEIGHT and x>0 and y>0:
-                            p5.rect((x,y),TILESIZE,TILESIZE) 
+                            p5.rect((x,y),TILESIZE,TILESIZE)
+                        
                         # if col == "P":
                         #         fill(255,64,64)
                         #         ellipse((x+10,y+10),mymap.tile_size-10,mymap.tile_size-10) 
@@ -60,13 +61,15 @@ class Map:
         self.worldmap = tmp.to_numpy()
         #print(self.worldmap)
 
-    def draw_numpy_map(self,offset_x,offset_y,img):
+    def draw_numpy_map(self,img):
         p5.fill(0)
         for index,data in np.ndenumerate(self.worldmap):
-            x = index[0] * TILESIZE - offset_x
-            y = index[1] * TILESIZE - offset_y
+            x = index[0] * TILESIZE - self.worldmap_screen_position.x * TILESIZE
+            y = index[1] * TILESIZE - self.worldmap_screen_position.y * TILESIZE
             
-            if data != -1 and x<WIDTH and y<HEIGHT and x>0 and y>0:
+            if data != -1 and data != 10000 and x<WIDTH and y<HEIGHT and x>=0 and y>=0: 
                 p5.image(img[data], (x, y))
+            elif data == 10000 and x<WIDTH and y<HEIGHT and x>0 and y>0:
+                p5.rect((x,y),TILESIZE,TILESIZE) 
                 #p5.rect((x,y),TILESIZE,TILESIZE) 
             
