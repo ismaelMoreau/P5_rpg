@@ -1,6 +1,7 @@
 
 import p5
 from global_var import *
+import numpy as np 
 
 class Player:
     def __init__(self,position_x,position_y,image,set_of_images):
@@ -27,3 +28,19 @@ class Player:
         else:
             self.image = self.images[int2]
             self.image_bool = True
+
+    def draw_hearts(self,pos_first_x,pos_first_y):
+        p5.stroke(255)
+        p5.stroke_weight(4)
+        for i in range(3):
+            with p5.push_matrix():
+                p5.fill(255,0,0)
+                p5.translate(pos_first_x+TILESIZE*i*1.5,pos_first_y)
+                p5.begin_shape()
+                for a in np.arange(0.0,p5.TWO_PI,0.01):
+                    scale=1
+                    x = scale*16*np.power(np.sin(a),3)
+                    y = -scale*(13*np.cos(a)-5*np.cos(2*a)-2*np.cos(3*a)-np.cos(4*a))
+                    p5.vertex(x,y)
+                p5.end_shape()
+        p5.no_stroke()

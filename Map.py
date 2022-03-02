@@ -66,10 +66,10 @@ class Map:
         for index,data in np.ndenumerate(self.worldmap):
             x = index[0] * TILESIZE - self.worldmap_screen_position.x * TILESIZE
             y = index[1] * TILESIZE - self.worldmap_screen_position.y * TILESIZE
-            
-            if data != -1 and data != 10000 and x<WIDTH and y<HEIGHT and x>=0 and y>=0: 
+            #TILESIZE*2 is the place for ui
+            if data != -1 and data != 10000 and x<WIDTH and y<HEIGHT-TILESIZE*2 and x>=0 and y>=0:
                 p5.image(img[data], (x, y))
-            elif data == 10000 and x<WIDTH and y<HEIGHT and x>0 and y>0:
-                p5.rect((x,y),TILESIZE,TILESIZE) 
+            # elif data == 10000 and x<WIDTH and y<HEIGHT and x>0 and y>0:
+            #     p5.rect((x,y),TILESIZE,TILESIZE) 
                 #p5.rect((x,y),TILESIZE,TILESIZE) 
             
