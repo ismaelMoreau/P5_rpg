@@ -1,6 +1,6 @@
 
 import p5
-from Encounter import Encounter
+from Encounter import *
 from Map import *
 from Player import *
 from Monster import *

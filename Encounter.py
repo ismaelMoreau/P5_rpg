@@ -1,10 +1,5 @@
-
-from os import posix_fadvise
-from tkinter import Button
-from turtle import pos, position
-from cv2 import addText
 import p5
-from Monster import Monster
+from Monster import *
 from global_var import *
 
 class Encounter:
