@@ -4,7 +4,7 @@ Ce travail est une implémentation d’un environnement pour une I.A. par renfor
 
 2. Interactivité
 Ce jouet propose une temporalité tour par tour. À chaque déplacement du joueur principal par les touches w,a,s,d il y a un pas fait par chaque agent. Ce qui équivaut un tour de boucle de phase d’exploration de l'i.a..
- Il y a également un système de rencontre lorsque le joueur principal est sur la même case qu’un autre objet, une fenêtre s’ouvre et différentes options sont disponibles. 
+Il y a également un système de rencontre lorsque le joueur principal est sur la même case qu’un autre objet, une fenêtre s’ouvre et différentes options sont disponibles. 
 3. Fonctionnalités
 3.1 Texte statique
 Lorsque survient le panneau de rencontre, du texte est utilisé pour communiquer son sujet.
