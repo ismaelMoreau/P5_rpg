@@ -19,7 +19,7 @@ class Monster:
                 self.is_visible = False
                 return
         p5.image(self.images[self.image_number].blend(self.images[self.image_number],"blend"),
-            ((self.map_position.x - screen_x) * TILESIZE,(self.map_position.y - screen_y)*TILESIZE))
+            (self.map_position.x - screen_x) * TILESIZE,(self.map_position.y - screen_y)*TILESIZE,TILESIZE,TILESIZE)
         self.is_visible = True
         
     

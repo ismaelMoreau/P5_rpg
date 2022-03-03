@@ -1,4 +1,5 @@
 
+from re import T
 import p5
 from global_var import *
 import numpy as np 
@@ -20,7 +21,7 @@ class Player:
         #p5.ellipse((self.position.x*TILESIZE+10+offset_x,self.position.y*TILESIZE+10+offset_y),TILESIZE-20,TILESIZE-20)
         #p5.ellipse((offset_x,offset_y),TILESIZE,TILESIZE)
         if self.image != None:
-            p5.image(self.image.blend(self.image,"blend"),(self.screen_midle_position.x*TILESIZE,self.screen_midle_position.y*TILESIZE))
+            p5.image(self.image.blend(self.image,"blend"),self.screen_midle_position.x*TILESIZE,self.screen_midle_position.y*TILESIZE,TILESIZE,TILESIZE)
 
         
     
@@ -41,7 +42,7 @@ class Player:
                     p5.fill(255,0,0)
                 else:
                     p5.no_fill()
-                p5.translate(pos_first_x+TILESIZE*i*1.2,pos_first_y)
+                p5.translate(pos_first_x+TILESIZE*i,pos_first_y)
                 p5.begin_shape()
                 for a in np.arange(0.0,p5.TWO_PI,0.01):
                     scale=1

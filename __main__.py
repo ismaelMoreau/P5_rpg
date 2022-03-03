@@ -67,13 +67,13 @@ def draw():
 
 def draw_UI():
         with p5.push_matrix():
-                p5.translate(0,HEIGHT-TILESIZE*2)
+                p5.translate(0,HEIGHT-TILESIZE)
                 p5.fill(0)
-                p5.rect((0,0),WIDTH,TILESIZE*2)
+                p5.rect((0,0),WIDTH,TILESIZE)
                 p5.fill(255)
                 p5.text_font(fonts[1])
-                p5.text(f"Monster Left in the oasis : {len(monsters)}",TILESIZE*11,TILESIZE*0.2)
-                player.draw_hearts(TILESIZE*1.5,TILESIZE)
+                p5.text(f"Monsters left in the oasis : {len(monsters)}",TILESIZE*10,TILESIZE*0.2)
+                player.draw_hearts(TILESIZE,TILESIZE/2)
 
 
 
@@ -120,7 +120,7 @@ def mouse_pressed(event):
                                 if player.current_number_of_hearts<=0:
                                         encounter.text_action="dead"
                                 else:
-                                        encounter.add_text("Nice Try mouhahaha",1)
+                                        encounter.add_text("Nice Try mouhahaha",0)
 # def mouse_released(event):
 #         print(event.x,":",event.y)
 

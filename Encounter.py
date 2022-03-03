@@ -13,10 +13,11 @@ class Encounter:
         self.player = player
         self.is_in_encounter = False
         self.scaling = 0.0
+        self.scale_multiply = 6
         self.current_monster = 0
         self.buttons = []
-        self.buttons.append(Button("attack",WIDTH/2,HEIGHT/2+5*TILESIZE, 12*TILESIZE, 2*TILESIZE))
-        self.buttons.append(Button("escape",WIDTH/2,HEIGHT/2+3*TILESIZE, 12*TILESIZE, 2*TILESIZE))
+        self.buttons.append(Button("attack",WIDTH/2,HEIGHT/2+2.5*TILESIZE, 6*TILESIZE, TILESIZE))
+        self.buttons.append(Button("escape",WIDTH/2,HEIGHT/2+1.5*TILESIZE, 6*TILESIZE, TILESIZE))
         self.text_action = "choose"
 
     def draw_encounter(self):
@@ -24,7 +25,7 @@ class Encounter:
             if self.monsters[count].is_visible:
                 if self.monsters[count].map_position == self.player.map_position:
                     self.open_section()
-                    if self.scaling == 12.0:
+                    if self.scaling == 6.0:
                         # +1*TILESIZE is center of the section so 5*TILESIZE mean botton of section
                         
                         for b in self.buttons:
@@ -37,7 +38,7 @@ class Encounter:
     def open_section(self):
         with p5.push_matrix():
             p5.rect_mode(p5.CENTER)
-            self.scaling = min(self.scaling + 1.0, 12.0)
+            self.scaling = min(self.scaling + 1.0, 6.0)
         
             p5.translate(WIDTH/2, HEIGHT/2)
             
@@ -52,9 +53,9 @@ class Encounter:
 
     def choose_texte(self,action):
         if action == "dead":
-            self.add_text("you are dead...",-5)
+            self.add_text("you are dead...",-2)
         elif action == "choose":
-            self.add_text("Choose...",-5)
+            self.add_text("Choose...",-2)
         else:
             pass
 
@@ -63,7 +64,7 @@ class Encounter:
         p5.fill(255)
         p5.no_stroke()
         #p5.text_size(64)
-        p5.text(label,(WIDTH/2,HEIGHT/2+tile_pos*TILESIZE-12))
+        p5.text(label,(WIDTH/2,HEIGHT/2+tile_pos*TILESIZE-6))
         p5.text_align(p5.CORNER)
 
 class Button:
@@ -88,7 +89,7 @@ class Button:
         p5.fill(self.label_color)
         p5.no_stroke()
         #p5.text_size(64)
-        p5.text(self.label,(self.x,self.y-12))
+        p5.text(self.label,(self.x,self.y-24))
         p5.rect_mode(p5.CORNER)
 
     def change_color(self,mouse_x,mouse_y):
