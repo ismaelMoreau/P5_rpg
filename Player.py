@@ -10,6 +10,9 @@ class Player:
         self.image = image
         self.image_bool = True
         self.images = set_of_images
+        self.current_number_of_hearts = 8
+        self.number_of_hearts = 8
+        self.monster_killed = 0
             
     def draw_player(self):
         #p5.image_mode(p5.CORNER)
@@ -21,7 +24,7 @@ class Player:
 
         
     
-    def choose_image(self,int1,int2):
+    def change_image(self,int1,int2):
         if self.image_bool:
             self.image = self.images[int1]
             self.image_bool = False
@@ -32,10 +35,13 @@ class Player:
     def draw_hearts(self,pos_first_x,pos_first_y):
         p5.stroke(255)
         p5.stroke_weight(4)
-        for i in range(3):
+        for i in range(self.number_of_hearts):
             with p5.push_matrix():
-                p5.fill(255,0,0)
-                p5.translate(pos_first_x+TILESIZE*i*1.5,pos_first_y)
+                if i < self.current_number_of_hearts:
+                    p5.fill(255,0,0)
+                else:
+                    p5.no_fill()
+                p5.translate(pos_first_x+TILESIZE*i*1.2,pos_first_y)
                 p5.begin_shape()
                 for a in np.arange(0.0,p5.TWO_PI,0.01):
                     scale=1
@@ -44,3 +50,5 @@ class Player:
                     p5.vertex(x,y)
                 p5.end_shape()
         p5.no_stroke()
+
+    

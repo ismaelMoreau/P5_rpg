@@ -2,7 +2,9 @@
 from os import posix_fadvise
 from tkinter import Button
 from turtle import pos, position
+from cv2 import addText
 import p5
+from Monster import Monster
 from global_var import *
 
 class Encounter:
@@ -11,13 +13,14 @@ class Encounter:
         self.player = player
         self.is_in_encounter = False
         self.scaling = 0.0
-        
+        self.current_monster = 0
         self.buttons = []
-        self.buttons.append(Button("attack all fuck",WIDTH/2,HEIGHT/2+5*TILESIZE, 12*TILESIZE, 2*TILESIZE))
-        self.buttons.append(Button("escape the fuck",WIDTH/2,HEIGHT/2+3*TILESIZE, 12*TILESIZE, 2*TILESIZE))
+        self.buttons.append(Button("attack",WIDTH/2,HEIGHT/2+5*TILESIZE, 12*TILESIZE, 2*TILESIZE))
+        self.buttons.append(Button("escape",WIDTH/2,HEIGHT/2+3*TILESIZE, 12*TILESIZE, 2*TILESIZE))
+        self.text_action = "choose"
 
     def draw_encounter(self):
-        for count in range(NBOFMONSTER):
+        for count in range(len(self.monsters)):
             if self.monsters[count].is_visible:
                 if self.monsters[count].map_position == self.player.map_position:
                     self.open_section()
@@ -26,10 +29,10 @@ class Encounter:
                         
                         for b in self.buttons:
                             b.draw_button()
-
-                        self.add_text("Choose the \n fuck right...",-5)
+                        self.choose_texte(self.text_action)
+                        
                     self.is_in_encounter = True
-                    
+                    self.current_monster = count
                     
     def open_section(self):
         with p5.push_matrix():
@@ -47,13 +50,21 @@ class Encounter:
             p5.no_stroke()
             p5.rect_mode(p5.CORNER)
 
+    def choose_texte(self,action):
+        if action == "dead":
+            self.add_text("you are dead...",-5)
+        elif action == "choose":
+            self.add_text("Choose...",-5)
+        else:
+            pass
+
     def add_text(self,label,tile_pos):
         p5.text_align(p5.CENTER)
         p5.fill(255)
         p5.no_stroke()
         #p5.text_size(64)
         p5.text(label,(WIDTH/2,HEIGHT/2+tile_pos*TILESIZE-12))
-
+        p5.text_align(p5.CORNER)
 
 class Button:
     def __init__(self,label,position_x,position_y,width,height):
@@ -92,5 +103,7 @@ class Button:
     def clicked_button(self,mouse_x,mouse_y):
         if(mouse_x > self.x -self.w/2 and mouse_y > self.y-self.h/2 
            and mouse_x< self.x +self.w/2 and mouse_y < self.y+self.h/2 ):
-            return True  
+            return True
+    
+
         
