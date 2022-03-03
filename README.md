@@ -1,9 +1,16 @@
 # P5_rpg
-Le projet est une implementation d'un environement style rpg pour un I.A. par renforcement rendu par la bibliotheque P5py
+see DESIGN DOCUMENT for description 
 
 
 
 Installation
 
+python 3.8+ tested with python 3.10 on windows11
+
 Take a look at the installation steps here in the p5 installation page
 https://p5.readthedocs.io/en/latest/install.html
+
+Needed Librarys
+p5
+numpy
+pandas

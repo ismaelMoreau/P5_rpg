@@ -40,18 +40,19 @@ class Map:
                 out.append((x + choice([-1, 0, 1]), y + choice([-1, 0, 1])))
             return out
 
-    def draw_map(self,offset_x,offset_y):
+    def draw_map(self,imgs):
         p5.fill(0)
         for row_index,row in enumerate(self.worldmap):
                 #print(row,row_index)
                 for col_index,col in enumerate(row):
                         #print(col,col_index)
-                        x = col_index * TILESIZE - offset_x
-                        y = row_index * TILESIZE - offset_y
+                        x = col_index * TILESIZE - self.worldmap_screen_position.x * TILESIZE
+                        y = row_index * TILESIZE - self.worldmap_screen_position.y * TILESIZE
                         if col == "#" and x<WIDTH and y<HEIGHT and x>0 and y>0:
                             p5.rect((x,y),TILESIZE,TILESIZE)
-                        if int(col) < 600 and x<WIDTH and y<HEIGHT and x>0 and y>0:
-                            p5.rect((x,y),TILESIZE,TILESIZE)
+                            #p5.image(imgs[np.random.randint(0,600)], x, y,TILESIZE,TILESIZE)
+                        # if int(col) < 600 and x<WIDTH and y<HEIGHT and x>0 and y>0:
+                        #     p5.rect((x,y),TILESIZE,TILESIZE)
                         
                         # if col == "P":
                         #         fill(255,64,64)
