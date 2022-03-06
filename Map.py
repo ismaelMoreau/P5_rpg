@@ -1,5 +1,5 @@
 from random import randint, choice
-from global_var import *
+from settings import *
 import p5
 import pandas as pd
 import numpy as np
@@ -10,7 +10,7 @@ class Map:
         self.walls = self.get_walls()
         self.tile_size = TILESIZE
         self.worldmap = []
-        self.worldmap_screen_position =p5.Vector(0,0)
+        self.worldmap_screen_position =p5.Vector(40,40)
 
     def rnd_grid(self, width=2):
       
