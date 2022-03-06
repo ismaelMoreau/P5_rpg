@@ -11,6 +11,6 @@ Take a look at the installation steps here in the p5 installation page
 https://p5.readthedocs.io/en/latest/install.html
 
 Needed Librarys : 
-p5,
+p5py or p5(python),
 numpy,
 pandas,
