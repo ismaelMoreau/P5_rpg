@@ -1,9 +1,10 @@
 
 import p5
-from Encounter import Encounter
+from Section_panel import *
 from Map import *
 from Player import *
 from Monster import *
+from Agent import *
 import numpy as np 
 import os
 
@@ -16,12 +17,14 @@ monsters = []
 sample_of_x = np.random.choice(TILEROW,NBOFMONSTER)
 sample_of_y = np.random.choice(TILECOL,NBOFMONSTER)
 fonts = []
+bubbles =[]
 def setup():
         global player
         global map_imgs
         global encounter
         global fonts
-        
+        global begin_section
+        global bubbles
         p5.size(WIDTH,HEIGHT)
         fonts.append(p5.create_font("./fonts/JosefinSans-Bold.ttf",32))
         fonts.append(p5.create_font("./fonts/Baloo-Regular.ttf",32))
@@ -30,15 +33,18 @@ def setup():
         mymap.readcsv_numpy_map("./oasis_Layer1.csv")
         map_imgs = load_a_set_of_img("/map_sprites")
         char1_imgs = load_a_set_of_img("/sprites/char1")
-        player = Player(midle_tile_x,midle_tile_y,char1_imgs[9],char1_imgs)
+        agent_imgs = load_a_set_of_img("/sprites/agent1")
+        player = Player(midle_tile_x+mymap.worldmap_screen_position.x,midle_tile_y+mymap.worldmap_screen_position.y,char1_imgs[9],char1_imgs)
         
         for i in range(3):
                 monsters_images_sets.append(load_a_set_of_img(f"/sprites/mons{i+1}"))
         for count in range(NBOFMONSTER):
                 monsters.append(Monster(sample_of_x[count],sample_of_y[count],monsters_images_sets[np.random.choice(3)]))
         
-        encounter = Encounter(monsters,player)
-        
+        encounter = Section_panel(monsters,player,"encounter")
+        begin_section = Section_panel(monsters,player,"begin_section")
+        for nb_bubs in range(10):
+                bubbles.append(Agent(TILEROW,TILECOL,50+np.random.randint(-5,5),50+np.random.randint(-5,5),mymap.worldmap,monsters,agent_imgs))
 def load_a_set_of_img(path):
         img = {}
         directory = os.getcwd()
@@ -50,7 +56,7 @@ def load_a_set_of_img(path):
 def draw():
         print(f"frames:{frame_count}")
         print(f"frames Rate:{frame_rate}")
-        if not encounter.is_in_encounter:
+        if not encounter.is_open and not begin_section.is_open:
                 p5.no_loop()   
                 p5.background(240,230,140) 
                 mymap.draw_numpy_map(map_imgs)
@@ -58,11 +64,21 @@ def draw():
                 for count in range(len(monsters)):
                         monsters[count].draw_monster(mymap.worldmap_screen_position.x,mymap.worldmap_screen_position.y)
                 draw_UI()
-
-        encounter.draw_encounter()
-        if encounter.is_in_encounter:
+                for count in range(len(bubbles)):
+                        bubbles[count].draw_agent(mymap.worldmap_screen_position.x,mymap.worldmap_screen_position.y)
+        if begin_section.is_open:
+                #mymap.draw_numpy_map(map_imgs)
+                p5.background(240,230,140) 
+                player.draw_player()
+                begin_section.draw_section()
+        encounter.draw_section()
+        if encounter.is_open:
                 p5.loop()
                 for b in encounter.buttons:
+                        b.change_color(mouse_x,mouse_y)
+        elif begin_section.is_open:
+                p5.loop()
+                for b in begin_section.buttons:
                         b.change_color(mouse_x,mouse_y)
 
 def draw_UI():
@@ -78,7 +94,7 @@ def draw_UI():
 
 
 def key_pressed():
-        if not encounter.is_in_encounter:
+        if not encounter.is_open:
                 if (key=="w"):
                         world_step(0,-1)
                         player.change_image(6,3)
@@ -98,18 +114,18 @@ def key_pressed():
                        player.change_image(0,4)
                         #0 4 8
                        
-
+#todo a reecrire..
 def mouse_pressed(event):
-        if encounter.is_in_encounter:
+        if encounter.is_open:
                 if encounter.buttons[1].clicked_button(event.x,event.y):#escape
-                        encounter.is_in_encounter=False
+                        encounter.is_open=False
                         encounter.scaling = 0.0
                         world_step(0,1)
                         player.change_image(9,10)
                 if encounter.buttons[0].clicked_button(event.x,event.y):#attack
                         r = np.random.random_sample()
-                        if r>0.25:
-                                encounter.is_in_encounter=False
+                        if r>0.50:
+                                encounter.is_open=False
                                 encounter.scaling = 0.0
                                 world_step(0,1)
                                 player.change_image(9,10)
@@ -121,7 +137,9 @@ def mouse_pressed(event):
                                         encounter.text_action="dead"
                                 else:
                                         encounter.add_text("Nice Try mouhahaha",0)
-# def mouse_released(event):
+        elif begin_section.is_open:
+                if begin_section.buttons[0].clicked_button(event.x,event.y):#begin
+                        begin_section.is_open=False
 #         print(event.x,":",event.y)
 
 def world_step(x,y):
@@ -130,6 +148,10 @@ def world_step(x,y):
         for count in range(len(monsters)):
                 if monsters[count].is_visible:
                         monsters[count].change_image()
+        for count in range(len(bubbles)):
+                bubbles[count].step()
+                if bubbles[count].is_visible:
+                        bubbles[count].change_image()
         p5.redraw()      
         
 if __name__ == '__main__':

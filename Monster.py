@@ -1,6 +1,6 @@
 
 import p5
-from global_var import *
+from settings import *
 
 class Monster:
     def __init__(self,position_x,position_y,images):
@@ -14,7 +14,7 @@ class Monster:
         #p5.fill(255,64,64)
         #p5.ellipse((self.position.x*TILESIZE+10+offset_x,self.position.y*TILESIZE+10+offset_y),TILESIZE-20,TILESIZE-20)
         #p5.ellipse((offset_x,offset_y),TILESIZE,TILESIZE)
-        if (not(self.map_position.x*TILESIZE<screen_x*TILESIZE+WIDTH) or not (self.map_position.y*TILESIZE<screen_y*TILESIZE+HEIGHT)
+        if (not(self.map_position.x*TILESIZE<screen_x*TILESIZE+WIDTH) or not (self.map_position.y*TILESIZE<screen_y*TILESIZE+HEIGHT+(-2*TILESIZE))
                 or not(self.map_position.x*TILESIZE>=screen_x*TILESIZE) or not(self.map_position.y*TILESIZE>=screen_y*TILESIZE)):
                 self.is_visible = False
                 return
