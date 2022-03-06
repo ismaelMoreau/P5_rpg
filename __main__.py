@@ -1,6 +1,10 @@
 
 import p5
+<<<<<<< HEAD
 from Section_panel import *
+=======
+from Encounter import *
+>>>>>>> 8d7b1a2a932524cc15811f96203f9efb88098699
 from Map import *
 from Player import *
 from Monster import *
@@ -32,6 +36,9 @@ def setup():
 
         mymap.readcsv_numpy_map("./oasis_Layer1.csv")
         map_imgs = load_a_set_of_img("/map_sprites")
+        # mymap.rnd_grid()
+        # mymap.get_walls()
+
         char1_imgs = load_a_set_of_img("/sprites/char1")
         agent_imgs = load_a_set_of_img("/sprites/agent1")
         player = Player(midle_tile_x+mymap.worldmap_screen_position.x,midle_tile_y+mymap.worldmap_screen_position.y,char1_imgs[9],char1_imgs)
@@ -60,6 +67,7 @@ def draw():
                 p5.no_loop()   
                 p5.background(240,230,140) 
                 mymap.draw_numpy_map(map_imgs)
+                #mymap.draw_map(map_imgs)
                 player.draw_player()
                 for count in range(len(monsters)):
                         monsters[count].draw_monster(mymap.worldmap_screen_position.x,mymap.worldmap_screen_position.y)
