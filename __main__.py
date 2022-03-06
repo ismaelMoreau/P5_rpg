@@ -1,10 +1,6 @@
 
 import p5
-<<<<<<< HEAD
 from Section_panel import *
-=======
-from Encounter import *
->>>>>>> 8d7b1a2a932524cc15811f96203f9efb88098699
 from Map import *
 from Player import *
 from Monster import *

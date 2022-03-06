@@ -1,13 +1,7 @@
-<<<<<<< HEAD:Section_panel.py
 
 import p5
 from Monster import Monster
 from settings import *
-=======
-import p5
-from Monster import *
-from global_var import *
->>>>>>> 8d7b1a2a932524cc15811f96203f9efb88098699:Encounter.py
 
 #TODO base class and ineheritance for different sections
 class Section_panel:
