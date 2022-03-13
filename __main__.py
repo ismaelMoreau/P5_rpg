@@ -4,9 +4,11 @@ from Section_panel import *
 from Map import *
 from Player import *
 from Monster import *
-from Agent import *
+from Agent_monte_carlos import *
 import numpy as np 
 import os
+import time
+
 
 mymap = Map(TILEROW,TILECOL)
 midle_tile_x = np.floor(WIDTH/TILESIZE/2)
@@ -46,8 +48,8 @@ def setup():
         
         encounter = Section_panel(monsters,player,"encounter")
         begin_section = Section_panel(monsters,player,"begin_section")
-        for nb_bubs in range(10):
-                bubbles.append(Agent(TILEROW,TILECOL,50+np.random.randint(-5,5),50+np.random.randint(-5,5),mymap.worldmap,monsters,agent_imgs))
+        for nb_bubs in range(NBOFAGENT1):
+                bubbles.append(Agent_monte_carlos(TILEROW,TILECOL,50+np.random.randint(-5,5),50+np.random.randint(-5,5),mymap.worldmap,monsters,agent_imgs))
 def load_a_set_of_img(path):
         img = {}
         directory = os.getcwd()
@@ -57,8 +59,8 @@ def load_a_set_of_img(path):
         return img
 
 def draw():
-        print(f"frames:{frame_count}")
-        print(f"frames Rate:{frame_rate}")
+        #print(f"frames:{frame_count}")
+        #print(f"frames Rate:{frame_rate}")
         if not encounter.is_open and not begin_section.is_open:
                 p5.no_loop()   
                 p5.background(240,230,140) 
@@ -117,6 +119,13 @@ def key_pressed():
                        world_step(1,0)
                        player.change_image(0,4)
                         #0 4 8
+                if (key =="g") and  mymap.worldmap[int(player.map_position.x),int(player.map_position.y)]==-1:
+                        world_step(0,0)
+                        mymap.worldmap[int(player.map_position.x),int(player.map_position.y)]=292
+                if (key =="r"):
+                        world_step(0,0)
+                        for b in bubbles:
+                                b.total_reset()
                        
 #todo a reecrire..
 def mouse_pressed(event):
@@ -152,11 +161,30 @@ def world_step(x,y):
         for count in range(len(monsters)):
                 if monsters[count].is_visible:
                         monsters[count].change_image()
-        for count in range(len(bubbles)):
-                bubbles[count].step()
-                if bubbles[count].is_visible:
-                        bubbles[count].change_image()
+        ai_think_or_move()
         p5.redraw()      
-        
+
+def ai_think_or_move():
+        for count in range(len(bubbles)):
+                if bubbles[count].thinking_mode:
+                        start = time.perf_counter()
+                        
+                        bubbles[count].ai_thinking(NBEPISODES)
+                 
+                        bubbles[count].thinking_mode = False
+                        
+                        bubbles[count].image_number = 12
+                        end = time.perf_counter()
+                        print(end - start)
+                        print("__________")
+                        # for x in bubbles[count].Qlearning_table:
+                        #         for  i in x:
+                        #               if sum(i)>0: print(i)
+                else:
+                        bubbles[count].real_step(bubbles[count].agent_position_x,bubbles[count].agent_position_y)
+                        
+                        print(bubbles[count].Q_table[bubbles[count].agent_position_x,bubbles[count].agent_position_y])
+                # if bubbles[count].is_visible:
+                #         bubbles[count].change_image()
 if __name__ == '__main__':
         p5.run()

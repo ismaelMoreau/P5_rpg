@@ -60,7 +60,7 @@ class Map:
     def readcsv_numpy_map(self,path):
         tmp = pd.read_csv(path)
         self.worldmap = tmp.to_numpy()
-        #print(self.worldmap)
+        #print(tmp)
 
     def draw_numpy_map(self,img):
         p5.fill(0)
