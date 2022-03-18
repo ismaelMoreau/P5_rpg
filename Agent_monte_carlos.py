@@ -3,6 +3,7 @@ import p5
 from settings import *
 from collections import defaultdict
 import time
+import progressbar
 
 #TODO base class and ineheritance for different sections
 class Agent_monte_carlos:
@@ -23,8 +24,8 @@ class Agent_monte_carlos:
         self.epsilon=0.5
         self.thinking_mode = True
         self.path_to_a_monster = []
-        
-       
+        self.step_max_by_episode = STARTINGNUMBEROFMOVESBYEPISODE
+        self.ai_thinking(NBEPISODES)
 
     def set_rewards(self,rewards_position):
         self.rewards_position = rewards_position
@@ -34,10 +35,12 @@ class Agent_monte_carlos:
         
     def total_reset(self):
         self.agent_position_x,self.agent_position_y = self.agent_start_position_x,self.agent_start_position_y
-        #self.Q_table.fill(0)
+        self.Q_table.fill(0)
         self.thinking_mode = True
+       
         self.epsilon = 0.5
         self.image_number = 12
+        self.ai_thinking(NBEPISODES)
 
     def draw_agent(self,screen_x,screen_y):
         #p5.image_mode(p5.CORNER)
@@ -75,8 +78,8 @@ class Agent_monte_carlos:
         done = False
 
         if map[x,y]==-1:
-            # r = np.random.sample()
-            # if r<0.25:
+            r = np.random.sample()
+            if r<0.25:
                 reward = 1
                 done = True
                 
@@ -127,7 +130,7 @@ class Agent_monte_carlos:
 
     def my_argmax(self,my_array):
         # notre argmax
-        my_max=-1000000.0
+        my_max=-10000.0
         my_list_of_max = []
         for i in range(0,my_array.shape[0]):
             if my_array[i] > my_max:
@@ -139,6 +142,7 @@ class Agent_monte_carlos:
         return(np.random.choice(my_list_of_max))
         
     def ai_thinking(self,num_episodes):
+        
         Q = self.Q_table
         total_return = defaultdict(float)
         N = defaultdict(float)
@@ -146,10 +150,12 @@ class Agent_monte_carlos:
         monster_tupple_position = [(monster.map_position.x,monster.map_position.y) for monster in self.monsters]
         map = self.map
         gamma=0.8
-        for i in range(num_episodes):
+        step_max = self.step_max_by_episode
+        for i in progressbar.progressbar(range(num_episodes)):
+            
             self.epsilon = 0.5
             # on génére un épisode
-            episode = self.generate_episode(start_x,start_y,Q,NBMAXMOVESBYEPISODE,monster_tupple_position,map)
+            episode = self.generate_episode(start_x,start_y,Q,step_max,monster_tupple_position,map)
             
             # on stocker les pairs s,a de l'épisode
             #all_state_action_pairs = [(s, a) for (s,a,r) in episodes]
@@ -165,7 +171,7 @@ class Agent_monte_carlos:
                     
                     # Calcul de G avec y = 1
                     for num  in range(len(rewards)-1,t,-1):
-                        R += rewards[num]*pow(gamma,num)
+                        R += rewards[num]*pow(gamma,num-t)
 
                     # Cumul G
                     total_return[(x,y,action)] +=  R
@@ -176,14 +182,16 @@ class Agent_monte_carlos:
                     # Calcul de Q value (s,a) par la moyenne des G cumulés sur N
                     Q[x,y,action] = total_return[(x,y, action)] / N[(x,y, action)]
         #for val in N.values():
-            if len(episode) >100:
-                print(len(episode))
+            # if len(episode) >100:
+            #     print(len(episode))
         self.Q_table = Q
+        self.thinking_mode = False
+
 
     def real_step(self,x,y):
         action = self.politique_egreedy(x,y,self.Q_table,epsilon=0.0)
-        pos = [self.agent_position_x,self.agent_position_y]
-        self.path_to_a_monster.append(pos)
+        # pos = [self.agent_position_x,self.agent_position_y]
+        # self.path_to_a_monster.append(pos)
         reset = False
         if action == 0:#down
             self.agent_position_y += -1
@@ -203,18 +211,17 @@ class Agent_monte_carlos:
             self.image_number= np.random.randint(9,12)
         
         if self.map[self.agent_position_x,self.agent_position_y]==-1:
-            # r = np.random.sample()
-            # if r<0.25:
+            r = np.random.sample()
+            if r<0.25:
                 self.map[self.agent_position_x,self.agent_position_y]=292
-                self.path_to_a_monster.clear()
+                # self.path_to_a_monster.clear()
                 reset = True
         for i,monster in enumerate(self.monsters):
             if self.agent_position_x == monster.map_position.x and self.agent_position_y == monster.map_position.y:
                 self.monsters.pop(i)
-                for position in self.path_to_a_monster:
-                    self.Q_table[position[0],position[1],action]=sum(self.Q_table[position[0],position[1]])/4
-                self.path_to_a_monster.clear()
+                # for position in self.path_to_a_monster:
+                #     self.Q_table[position[0],position[1],action]=sum(self.Q_table[position[0],position[1]])/4
+                # self.path_to_a_monster.clear()
                 reset = True
         if reset:
             self.total_reset()
-        

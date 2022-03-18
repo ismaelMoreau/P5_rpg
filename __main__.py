@@ -16,8 +16,11 @@ midle_tile_y = np.floor(HEIGHT/TILESIZE/2)
 map_imgs = {}
 monsters_images_sets=[]
 monsters = []
-sample_of_x = np.random.choice(TILEROW,NBOFMONSTER)
-sample_of_y = np.random.choice(TILECOL,NBOFMONSTER)
+
+arr= np.arange(40,60)#centered monsters's position 
+sample_of_x = np.random.choice(arr,NBOFMONSTER)
+
+sample_of_y = np.random.choice(arr,NBOFMONSTER)
 fonts = []
 bubbles =[]
 def setup():
@@ -61,7 +64,7 @@ def load_a_set_of_img(path):
 def draw():
         #print(f"frames:{frame_count}")
         #print(f"frames Rate:{frame_rate}")
-        if not encounter.is_open and not begin_section.is_open:
+        if not encounter.is_open and not begin_section.is_open and not bubbles[0].thinking_mode:
                 p5.no_loop()   
                 p5.background(240,230,140) 
                 mymap.draw_numpy_map(map_imgs)
@@ -87,6 +90,7 @@ def draw():
                 for b in begin_section.buttons:
                         b.change_color(mouse_x,mouse_y)
 
+
 def draw_UI():
         with p5.push_matrix():
                 p5.translate(0,HEIGHT-TILESIZE)
@@ -100,7 +104,7 @@ def draw_UI():
 
 
 def key_pressed():
-        if not encounter.is_open:
+        if not encounter.is_open:#there is only one ai for now
                 if (key=="w"):
                         world_step(0,-1)
                         player.change_image(6,3)
@@ -166,25 +170,10 @@ def world_step(x,y):
 
 def ai_think_or_move():
         for count in range(len(bubbles)):
-                if bubbles[count].thinking_mode:
-                        start = time.perf_counter()
-                        
-                        bubbles[count].ai_thinking(NBEPISODES)
-                 
-                        bubbles[count].thinking_mode = False
-                        
-                        bubbles[count].image_number = 12
-                        end = time.perf_counter()
-                        print(end - start)
-                        print("__________")
-                        # for x in bubbles[count].Qlearning_table:
-                        #         for  i in x:
-                        #               if sum(i)>0: print(i)
-                else:
-                        bubbles[count].real_step(bubbles[count].agent_position_x,bubbles[count].agent_position_y)
-                        
-                        print(bubbles[count].Q_table[bubbles[count].agent_position_x,bubbles[count].agent_position_y])
-                # if bubbles[count].is_visible:
-                #         bubbles[count].change_image()
+                bubbles[count].real_step(bubbles[count].agent_position_x,bubbles[count].agent_position_y)
+                #bubbles[count].step_max_by_episode = int(0.25*(abs((len(monsters)-1)-NBOFMONSTER)*STARTINGNUMBEROFMOVESBYEPISODE))
+               
+                print(bubbles[count].Q_table[bubbles[count].agent_position_x,bubbles[count].agent_position_y])
+
 if __name__ == '__main__':
         p5.run()
