@@ -17,7 +17,7 @@ map_imgs = {}
 monsters_images_sets=[]
 monsters = []
 
-arr= np.arange(40,60)#centered monsters's position 
+arr= np.arange(30,70)#centered monsters's position 
 sample_of_x = np.random.choice(arr,NBOFMONSTER)
 
 sample_of_y = np.random.choice(arr,NBOFMONSTER)
@@ -30,6 +30,8 @@ def setup():
         global fonts
         global begin_section
         global bubbles
+        global agent_imgs
+
         p5.size(WIDTH,HEIGHT)
         fonts.append(p5.create_font("./fonts/JosefinSans-Bold.ttf",32))
         fonts.append(p5.create_font("./fonts/Baloo-Regular.ttf",32))
@@ -64,7 +66,7 @@ def load_a_set_of_img(path):
 def draw():
         #print(f"frames:{frame_count}")
         #print(f"frames Rate:{frame_rate}")
-        if not encounter.is_open and not begin_section.is_open and not bubbles[0].thinking_mode:
+        if not encounter.is_open and not begin_section.is_open:
                 p5.no_loop()   
                 p5.background(240,230,140) 
                 mymap.draw_numpy_map(map_imgs)
@@ -98,7 +100,9 @@ def draw_UI():
                 p5.rect((0,0),WIDTH,TILESIZE)
                 p5.fill(255)
                 p5.text_font(fonts[1])
-                p5.text(f"Monsters left in the oasis : {len(monsters)}",TILESIZE*10,TILESIZE*0.2)
+                p5.text(f"Monsters left in the oasis : {len(monsters)}",TILESIZE*5,TILESIZE*0.2)
+                for i,b in enumerate(bubbles):
+                        p5.text(f"Bubble {i}:lvl {b.lvl}",TILESIZE*(13+(i*4)),TILESIZE*0.2)
                 player.draw_hearts(TILESIZE,TILESIZE/2)
 
 
@@ -127,10 +131,18 @@ def key_pressed():
                         world_step(0,0)
                         mymap.worldmap[int(player.map_position.x),int(player.map_position.y)]=292
                 if (key =="r"):
-                        world_step(0,0)
                         for b in bubbles:
+                                b.agent_start_position_x = int(player.map_position.x)
+                                b.agent_start_position_y = int(player.map_position.y)
                                 b.total_reset()
-                       
+                        world_step(0,0)
+                if (key =="b"):
+                        bubbles.append(Agent_monte_carlos(TILEROW,TILECOL,int(player.map_position.x), int(player.map_position.y),mymap.worldmap,monsters,agent_imgs))
+                        world_step(0,0)
+                if (key =="p"):
+                        if len(bubbles)> 0:
+                                bubbles.pop()
+                        world_step(0,0)
 #todo a reecrire..
 def mouse_pressed(event):
         if encounter.is_open:

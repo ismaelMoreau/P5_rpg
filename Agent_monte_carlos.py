@@ -25,7 +25,9 @@ class Agent_monte_carlos:
         self.thinking_mode = True
         self.path_to_a_monster = []
         self.step_max_by_episode = STARTINGNUMBEROFMOVESBYEPISODE
+        self.lvl = 1
         self.ai_thinking(NBEPISODES)
+        
 
     def set_rewards(self,rewards_position):
         self.rewards_position = rewards_position
@@ -55,10 +57,10 @@ class Agent_monte_carlos:
             (self.agent_position_x - screen_x) * TILESIZE,(self.agent_position_y - screen_y)*TILESIZE,TILESIZE,TILESIZE)
         self.is_visible = True
    
-    def step(self,action,x,y,monster_arr,map):
+    def step(self,action,x,y,monster_arr,map,lvl):
     
         if action == 0:#down
-            y += -1
+            y += 1
             #self.limit_coordinates()
             
         elif action == 1:#right
@@ -66,7 +68,7 @@ class Agent_monte_carlos:
             #self.limit_coordinates()
             
         elif action == 2:#up
-            y += 1
+            y += -1
             #self.limit_coordinates()
            
         elif action == 3:#left
@@ -79,8 +81,8 @@ class Agent_monte_carlos:
 
         if map[x,y]==-1:
             r = np.random.sample()
-            if r<0.25:
-                reward = 1
+            if r>(0.10*lvl):
+                reward = -10
                 done = True
                 
                 
@@ -95,7 +97,7 @@ class Agent_monte_carlos:
         action = np.random.randint(0,4)
         return action
         
-    def generate_episode(self,x,y,Q,max_num_steps,monsters_pos,map):
+    def generate_episode(self,x,y,Q,max_num_steps,monsters_pos,map,lvl):
         episode = []
         
         for t in range(max_num_steps):
@@ -104,7 +106,7 @@ class Agent_monte_carlos:
             action = self.politique_egreedy(x,y,Q,self.epsilon)
             
             # envoie de l'action à l'environnement pour retour (s_, r, done)
-            x_,y_,reward,done = self.step(action,x,y,monsters_pos,map)
+            x_,y_,reward,done = self.step(action,x,y,monsters_pos,map,lvl)
             
             # stockage dans la liste du triplet (état, action, récompense)
             episode.append((x,y, action, reward))
@@ -143,6 +145,7 @@ class Agent_monte_carlos:
         
     def ai_thinking(self,num_episodes):
         
+        lvl = self.lvl
         Q = self.Q_table
         total_return = defaultdict(float)
         N = defaultdict(float)
@@ -155,7 +158,7 @@ class Agent_monte_carlos:
             
             self.epsilon = 0.5
             # on génére un épisode
-            episode = self.generate_episode(start_x,start_y,Q,step_max,monster_tupple_position,map)
+            episode = self.generate_episode(start_x,start_y,Q,step_max,monster_tupple_position,map,lvl)
             
             # on stocker les pairs s,a de l'épisode
             #all_state_action_pairs = [(s, a) for (s,a,r) in episodes]
@@ -194,7 +197,7 @@ class Agent_monte_carlos:
         # self.path_to_a_monster.append(pos)
         reset = False
         if action == 0:#down
-            self.agent_position_y += -1
+            self.agent_position_y += 1
             
             self.image_number= np.random.randint(3)
         elif action == 1:#right
@@ -202,7 +205,7 @@ class Agent_monte_carlos:
             
             self.image_number= np.random.randint(3,6)
         elif action == 2:#up
-            self.agent_position_y += 1
+            self.agent_position_y += -1
             
             self.image_number= np.random.randint(6,9)
         elif action == 3:#left
@@ -212,13 +215,16 @@ class Agent_monte_carlos:
         
         if self.map[self.agent_position_x,self.agent_position_y]==-1:
             r = np.random.sample()
-            if r<0.25:
-                self.map[self.agent_position_x,self.agent_position_y]=292
+            if r>0.10*self.lvl:
                 # self.path_to_a_monster.clear()
                 reset = True
+                self.map[self.agent_position_x,self.agent_position_y]=292
         for i,monster in enumerate(self.monsters):
             if self.agent_position_x == monster.map_position.x and self.agent_position_y == monster.map_position.y:
                 self.monsters.pop(i)
+                self.agent_start_position_x = self.agent_position_x
+                self.agent_start_position_y = self.agent_position_y
+                self.lvl += 1
                 # for position in self.path_to_a_monster:
                 #     self.Q_table[position[0],position[1],action]=sum(self.Q_table[position[0],position[1]])/4
                 # self.path_to_a_monster.clear()
