@@ -43,8 +43,8 @@ class Section_panel:
             
                 for b in self.buttons:
                     b.draw_button()
-                self.add_text("rules : \n 50 percent chances \n to remove monsters",-2)
-                self.add_text("agent rules: \n 25 percent chances \n to die on sand \n rnd policy[wip]",0)
+                self.add_text("\n \nattack = \n 50 percent chances \n\ng key add green tile \n \nb key add a bubble \n \np key remove bubble \n \nr key reset bubbles" ,-3)
+                #self.add_text("agent rules: \n to die on sand \n monte carlos algo \n egreedy policy",0)
                     
     def open_section(self):
         with p5.push_matrix():
