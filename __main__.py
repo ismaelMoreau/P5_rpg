@@ -5,6 +5,7 @@ from Map import *
 from Player import *
 from Monster import *
 from Agent_monte_carlos import *
+from Particle_system import *
 import numpy as np 
 import os
 import time
@@ -23,6 +24,8 @@ sample_of_x = np.random.choice(arr,NBOFMONSTER)
 sample_of_y = np.random.choice(arr,NBOFMONSTER)
 fonts = []
 bubbles =[]
+system_particle_is_active = False
+
 def setup():
         global player
         global map_imgs
@@ -31,12 +34,12 @@ def setup():
         global begin_section
         global bubbles
         global agent_imgs
-
+        
         p5.size(WIDTH,HEIGHT)
         fonts.append(p5.create_font("./fonts/JosefinSans-Bold.ttf",32))
         fonts.append(p5.create_font("./fonts/Baloo-Regular.ttf",32))
         p5.text_font(fonts[0])
-
+       
         mymap.readcsv_numpy_map("./oasis_Layer1.csv")
         map_imgs = load_a_set_of_img("/map_sprites")
         # mymap.rnd_grid()
@@ -55,6 +58,8 @@ def setup():
         begin_section = Section_panel(monsters,player,"begin_section")
         for nb_bubs in range(NBOFAGENT1):
                 bubbles.append(Agent_monte_carlos(TILEROW,TILECOL,50+np.random.randint(-5,5),50+np.random.randint(-5,5),mymap.worldmap,monsters,agent_imgs))
+
+
 def load_a_set_of_img(path):
         img = {}
         directory = os.getcwd()
@@ -66,7 +71,11 @@ def load_a_set_of_img(path):
 def draw():
         #print(f"frames:{frame_count}")
         #print(f"frames Rate:{frame_rate}")
-        if not encounter.is_open and not begin_section.is_open:
+        global system_particle_is_active
+       
+        
+
+        if not encounter.is_open and not begin_section.is_open and not system_particle_is_active :
                 p5.no_loop()   
                 p5.background(240,230,140) 
                 mymap.draw_numpy_map(map_imgs)
@@ -91,7 +100,22 @@ def draw():
                 p5.loop()
                 for b in begin_section.buttons:
                         b.change_color(mouse_x,mouse_y)
+      
+        for b in bubbles:
+                if b.is_on_monster:
+                        p5.loop()
+                        img_nb = mymap.worldmap[b.agent_position_x][b.agent_position_y]
+                        if img_nb != -1:
+                                p5.image(map_imgs[img_nb], b.agent_position_x * TILESIZE - mymap.worldmap_screen_position.x * TILESIZE, b.agent_position_y * TILESIZE - mymap.worldmap_screen_position.y * TILESIZE,TILESIZE,TILESIZE)
+                        b.sysParticle.add_particle(1)
+                        b.run_particle_system()
+                        system_particle_is_active = True
+                       
 
+                else:
+                        system_particle_is_active = False
+                        b.empty_particles()
+                        
 
 def draw_UI():
         with p5.push_matrix():
@@ -181,11 +205,12 @@ def world_step(x,y):
         p5.redraw()      
 
 def ai_think_or_move():
+        global system_particle_is_active
         for count in range(len(bubbles)):
-                bubbles[count].real_step(bubbles[count].agent_position_x,bubbles[count].agent_position_y)
+                bubbles[count].real_step(bubbles[count].agent_position_x,bubbles[count].agent_position_y,mymap.worldmap_screen_position)
                 #bubbles[count].step_max_by_episode = int(0.25*(abs((len(monsters)-1)-NBOFMONSTER)*STARTINGNUMBEROFMOVESBYEPISODE))
                
-                print(bubbles[count].Q_table[bubbles[count].agent_position_x,bubbles[count].agent_position_y])
+                #print(bubbles[count].Q_table[bubbles[count].agent_position_x,bubbles[count].agent_position_y])
 
 if __name__ == '__main__':
         p5.run()
