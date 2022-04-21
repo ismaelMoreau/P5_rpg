@@ -1,5 +1,4 @@
 
-from re import T
 import p5
 from settings import *
 import numpy as np 
@@ -11,7 +10,7 @@ class Player:
         self.image = image
         self.image_bool = True
         self.images = set_of_images
-        self.current_number_of_hearts = 3
+        self.current_number_of_hearts = 1
         self.number_of_hearts = 3
         self.monster_killed = 0
         self.midle_tile_x = np.floor(WIDTH/TILESIZE/2)

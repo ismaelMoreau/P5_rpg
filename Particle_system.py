@@ -1,5 +1,4 @@
-from pickle import TRUE
-from this import s
+
 import p5
 from Particle import *
 class ParticleSysteme:

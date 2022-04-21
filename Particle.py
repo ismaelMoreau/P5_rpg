@@ -1,4 +1,4 @@
-from mimetypes import init
+
 import p5
 
 class Particle():
