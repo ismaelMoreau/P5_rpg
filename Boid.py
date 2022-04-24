@@ -19,14 +19,15 @@ class Boid:
         self.velocity = p5.Vector(np.cos(angle),np.sin(angle))
 
         self.position = p5.Vector(x,y)
-        self.r = 2.0
-        self.maxspeed = 2
-        self.maxforce = 0.03
+     
     
     def run(self,boids):
-        sep = self.separate(boids)
-        ali = self.align(boids)
-        coh = self.cohesion(boids)
+        r = 20.0
+        maxspeed = 20
+        maxforce = 0.1
+        sep = self.separate(boids,maxspeed,maxforce)
+        ali = self.align(boids,maxspeed,maxforce)
+        coh = self.cohesion(boids,maxspeed,maxforce)
 
         sep*=1.5
 
@@ -36,15 +37,15 @@ class Boid:
  
         #self.update()
         self.velocity += self.acceleration 
-        self.velocity.limit(self.maxspeed)
+        self.velocity.limit(maxspeed)
         self.position += self.velocity
         self.acceleration *= 0
         
         #self.borders()
-        if (self.position.x < -2): self.position.x = WIDTH+2
-        if (self.position.y < -2): self.position.y = HEIGHT+2
-        if (self.position.x > WIDTH+2): self.position.x = -2
-        if (self.position.y > HEIGHT+2): self.position.y = -2
+        if (self.position.x < -r): self.position.x = WIDTH+r
+        if (self.position.y < -r): self.position.y = HEIGHT+r
+        if (self.position.x > WIDTH+r): self.position.x = -r
+        if (self.position.y > HEIGHT+r): self.position.y = -r
         
         #self.render()
         #with p5.push_matrix():
@@ -57,12 +58,12 @@ class Boid:
 
 
     
-    def seek(self,target):
+    def seek(self,target,maxspeed,maxforce):
         desired = target - self.position
         desired = desired.normalize()
-        desired *= self.maxspeed
+        desired *= maxspeed
         steer = desired - self.velocity
-        steer.limit(self.maxforce)
+        steer.limit(maxforce)
         return steer
     
 
@@ -71,8 +72,8 @@ class Boid:
 
 
     
-    def separate(self,boids):
-        desiredseparation = 50
+    def separate(self,boids,maxspeed,maxforce):
+        desiredseparation = 100
         steer = p5.Vector(0,0,0)
         count = 0
         for b in boids:
@@ -87,12 +88,12 @@ class Boid:
             steer = steer.__truediv__(count)
         if steer.magnitude > 0.0 :
             steer.normalize()
-            steer = steer *self.maxspeed
+            steer = steer *maxspeed
             steer -= self.velocity
-            steer.limit(self.maxforce)
+            steer.limit(maxforce)
         return steer
     
-    def align(self,boids):
+    def align(self,boids,maxspeed,maxforce):
         neighbordist = 75
         sum  = p5.Vector(0,0)
         count = 0
@@ -104,15 +105,15 @@ class Boid:
         if count> 0:
             sum = sum.__truediv__(count)
             sum.normalize()
-            sum = sum *self.maxspeed
+            sum = sum *maxspeed
             steer = sum - self.velocity
-            steer.limit(self.maxforce)
+            steer.limit(maxforce)
             return steer
         else:
             r = p5.Vector(0,0)
             return r
 
-    def cohesion(self,boids):
+    def cohesion(self,boids,maxspeed,maxforce):
         neighbordist = 75
         sum  = p5.Vector(0,0)
         count = 0
@@ -123,6 +124,6 @@ class Boid:
                 count+=1 
         if (count > 0):
             sum = sum.__truediv__(count)
-            return self.seek(sum)
+            return self.seek(sum,maxspeed,maxforce)
         else:
             return p5.Vector(0,0)

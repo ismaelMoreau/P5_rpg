@@ -9,7 +9,6 @@ from Monster import *
 from Agent_monte_carlos import *
 from Particle_system import *
 from Boid import *
-from Flock import *
 import numpy as np 
 import os
 import time
@@ -105,11 +104,12 @@ def draw():
                         bubbles[count].draw_agent(mymap.worldmap_screen_position.x,mymap.worldmap_screen_position.y)
                 encounter.check_is_open()
      
-        if encounter.is_open and not end_animation_is_active:
+        if encounter.is_open:
                 p5.loop()
                 encounter.draw_section()
                 for b in encounter.buttons:
                         b.change_color(mouse_x,mouse_y)
+        
         if begin_section.is_open:
                 p5.loop()
                 p5.background(240,230,140) 
@@ -117,69 +117,30 @@ def draw():
                 begin_section.draw_section()
                 for b in begin_section.buttons:
                         b.change_color(mouse_x,mouse_y)
-      
-        for b in bubbles:
-                if b.is_on_monster:
-                        p5.loop()
-                        img_nb = mymap.worldmap[b.agent_position_x][b.agent_position_y]
-                        if img_nb != -1:
-                                p5.image(map_imgs[img_nb], b.agent_position_x * TILESIZE - mymap.worldmap_screen_position.x * TILESIZE, b.agent_position_y * TILESIZE - mymap.worldmap_screen_position.y * TILESIZE,TILESIZE,TILESIZE)
-                        b.sysParticle.add_particle(1)
-                        b.run_particle_system()
-                        system_particle_is_active = True
-                else:
-                        system_particle_is_active = False
-                        b.empty_particles()
+        
+        if not end_animation_is_active:        
+                for b in bubbles:
+                        if b.is_on_monster:
+                                p5.loop()
+                                img_nb = mymap.worldmap[b.agent_position_x][b.agent_position_y]
+                                if img_nb != -1:
+                                        p5.image(map_imgs[img_nb], b.agent_position_x * TILESIZE - mymap.worldmap_screen_position.x * TILESIZE, b.agent_position_y * TILESIZE - mymap.worldmap_screen_position.y * TILESIZE,TILESIZE,TILESIZE)
+                                b.sysParticle.add_particle(1)
+                                b.run_particle_system()
+                                system_particle_is_active = True
+                        else:
+                                system_particle_is_active = False
+                                b.empty_particles()
         
         if end_animation_is_active:
                 p5.loop
                 p5.background(240,230,140)
-                for i,b in enumerate(end_game_anim_flock):
-                       #if i % 10 ==0:
+                for b in end_game_anim_flock:
                         b.run(end_game_anim_flock)
-                # tile_count_for_end_animation_x += 1
-                # if tile_count_for_end_animation_x%(WIDTH/64) >= (WIDTH/64)-1:
-                #         tile_count_for_end_animation_y += 1
-                # x = int(np.floor(tile_count_for_end_animation_x%(WIDTH/64))+mymap.worldmap_screen_position.x)
-                # y = int(np.floor(tile_count_for_end_animation_y%(HEIGHT/64))+mymap.worldmap_screen_position.y)
-     
-                # img_nb = mymap.worldmap[x][y]
-                # if img_nb != -1:
-                #         position = p5.Vector(x * TILESIZE - mymap.worldmap_screen_position.x * TILESIZE,y * TILESIZE - mymap.worldmap_screen_position.y * TILESIZE)
-                #         acceleration = p5.Vector(0, 0.05)
-                #         velocity = p5.Vector(p5.random_uniform(-1, 1), p5.random_uniform(-2, 0))
-                #         lifespan = 255.0;
-                #         # mymap.draw_numpy_map(map_imgs)
-                #         # for i in range(100):
-                #         #         # p5.background(240,230,140) 
-                #         #         # print(f"iteration nume:{i}")
-                #         #         velocity +=acceleration 
-                #         #         position +=velocity
-                #         #         lifespan -= 20.0
-                                
-                #         p5.image(map_imgs[img_nb],position.x,position.y ,32,32)
-                                
-
-
-# def end_game_animation():
-      
-#         for index,data in np.ndenumerate(mymap.worldmap): 
-#                 position = p5.Vector(index[0] * TILESIZE - mymap.worldmap_screen_position.x * TILESIZE, index[1] * TILESIZE - mymap.worldmap_screen_position.y * TILESIZE)
-#                 x = position.x
-#                 y = position.y
-#                 if data != -1 and x<WIDTH and y<HEIGHT-TILESIZE and x>=0 and y>=0:  
-#                         print(position)
-#                         acceleration = p5.Vector(0, 0.05)
-#                         print(acceleration)
-#                         velocity = p5.Vector(p5.random_uniform(-1, 1), p5.random_uniform(-2, 0))
-#                         print(velocity)
-#                         lifespan = 255.0;
-#                         for i in range(100):
-#                                 print(f"iteration nume:{i}")
-#                                 velocity +=acceleration 
-#                                 position +=velocity
-#                                 lifespan -= 20.0
-#                                 p5.image(map_imgs[data],position.x,position.y ,TILESIZE,TILESIZE)
+                p5.text_size(64)
+                p5.fill(0)
+                p5.text("Game Over", (WIDTH/2-140, HEIGHT/2-62))
+                
 def draw_UI():
         with p5.push_matrix():
                 p5.translate(0,HEIGHT-TILESIZE)

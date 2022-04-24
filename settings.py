@@ -1,6 +1,6 @@
 TILESIZE=64
-WIDTH=1500
-HEIGHT=1000
+WIDTH=800
+HEIGHT=600
 TILEROW=100#can be determine by a cvs
 TILECOL=100#can be determine by a cvs
 NBOFMONSTER = 25
