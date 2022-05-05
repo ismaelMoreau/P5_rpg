@@ -4,7 +4,7 @@ from settings import *
 from collections import defaultdict
 import time
 import progressbar
-
+from Particle_system import *
 #TODO base class and ineheritance for different sections
 class Agent_monte_carlos:
     def __init__(self,nb_row,nb_col,start_position_x,start_position_y,map,monsters,images) -> None:
@@ -26,8 +26,10 @@ class Agent_monte_carlos:
         self.path_to_a_monster = []
         self.step_max_by_episode = STARTINGNUMBEROFMOVESBYEPISODE
         self.lvl = 1
+        self.is_on_monster = False
+        self.sysParticle = ParticleSysteme(0,0)
         self.ai_thinking(NBEPISODES)
-        
+
 
     def set_rewards(self,rewards_position):
         self.rewards_position = rewards_position
@@ -81,7 +83,7 @@ class Agent_monte_carlos:
 
         if map[x,y]==-1:
             r = np.random.sample()
-            if r>(0.10*lvl):
+            if r>(0.04*lvl):
                 reward = -10
                 done = True
                 
@@ -155,7 +157,6 @@ class Agent_monte_carlos:
         gamma=0.8
         step_max = self.step_max_by_episode
         for i in progressbar.progressbar(range(num_episodes)):
-            
             self.epsilon = 0.5
             # on génére un épisode
             episode = self.generate_episode(start_x,start_y,Q,step_max,monster_tupple_position,map,lvl)
@@ -191,8 +192,9 @@ class Agent_monte_carlos:
         self.thinking_mode = False
 
 
-    def real_step(self,x,y):
+    def real_step(self,x,y,screen_vector):
         action = self.politique_egreedy(x,y,self.Q_table,epsilon=0.0)
+        self.is_on_monster = False
         # pos = [self.agent_position_x,self.agent_position_y]
         # self.path_to_a_monster.append(pos)
         reset = False
@@ -225,9 +227,19 @@ class Agent_monte_carlos:
                 self.agent_start_position_x = self.agent_position_x
                 self.agent_start_position_y = self.agent_position_y
                 self.lvl += 1
+                self.sysParticle.set_position((self.agent_position_x-screen_vector.x)*TILESIZE+(TILESIZE/2),(self.agent_position_y-screen_vector.y)*TILESIZE+(TILESIZE/2))
+                self.sysParticle.add_particle(15)
                 # for position in self.path_to_a_monster:
                 #     self.Q_table[position[0],position[1],action]=sum(self.Q_table[position[0],position[1]])/4
                 # self.path_to_a_monster.clear()
+                self.is_on_monster = True
                 reset = True
         if reset:
             self.total_reset()
+
+    def run_particle_system(self):
+        self.sysParticle.run()
+
+        
+    def empty_particles(self):
+        self.sysParticle.particles.clear()

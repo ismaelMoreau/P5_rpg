@@ -1,10 +1,14 @@
 
+
 import p5
-from Section_panel import *
+from Section_Encounter import *
+from Section_Begin import *
 from Map import *
 from Player import *
 from Monster import *
 from Agent_monte_carlos import *
+from Particle_system import *
+from Boid import *
 import numpy as np 
 import os
 import time
@@ -23,6 +27,17 @@ sample_of_x = np.random.choice(arr,NBOFMONSTER)
 sample_of_y = np.random.choice(arr,NBOFMONSTER)
 fonts = []
 bubbles =[]
+
+arrW = np.arange(0,WIDTH/64)
+arrH = np.arange(0,HEIGHT/64)
+arr_width_mixed = np.random.choice(arrW,len(arrW)-1)
+arr_height_mixed = np.random.choice(arrH,len(arrH)-1)
+system_particle_is_active = False
+tile_count_for_end_animation_x = 0
+tile_count_for_end_animation_y = 0
+end_animation_is_active = False
+end_game_anim_flock = []
+
 def setup():
         global player
         global map_imgs
@@ -31,12 +46,14 @@ def setup():
         global begin_section
         global bubbles
         global agent_imgs
+        
 
+        
         p5.size(WIDTH,HEIGHT)
         fonts.append(p5.create_font("./fonts/JosefinSans-Bold.ttf",32))
         fonts.append(p5.create_font("./fonts/Baloo-Regular.ttf",32))
         p5.text_font(fonts[0])
-
+       
         mymap.readcsv_numpy_map("./oasis_Layer1.csv")
         map_imgs = load_a_set_of_img("/map_sprites")
         # mymap.rnd_grid()
@@ -51,10 +68,12 @@ def setup():
         for count in range(NBOFMONSTER):
                 monsters.append(Monster(sample_of_x[count],sample_of_y[count],monsters_images_sets[np.random.choice(3)]))
         
-        encounter = Section_panel(monsters,player,"encounter")
-        begin_section = Section_panel(monsters,player,"begin_section")
+        encounter = Section_Encounter(monsters,player)
+        begin_section = Section_Begin(monsters,player)
         for nb_bubs in range(NBOFAGENT1):
                 bubbles.append(Agent_monte_carlos(TILEROW,TILECOL,50+np.random.randint(-5,5),50+np.random.randint(-5,5),mymap.worldmap,monsters,agent_imgs))
+
+
 def load_a_set_of_img(path):
         img = {}
         directory = os.getcwd()
@@ -64,9 +83,15 @@ def load_a_set_of_img(path):
         return img
 
 def draw():
-        #print(f"frames:{frame_count}")
+        #(f"frames:{frame_count}")
         #print(f"frames Rate:{frame_rate}")
-        if not encounter.is_open and not begin_section.is_open:
+        global system_particle_is_active
+        global tile_count_for_end_animation_x 
+        global tile_count_for_end_animation_y 
+        global end_animation_is_active
+        global end_game_anim_flock
+
+        if not encounter.is_open and not begin_section.is_open and not system_particle_is_active and not end_animation_is_active:
                 p5.no_loop()   
                 p5.background(240,230,140) 
                 mymap.draw_numpy_map(map_imgs)
@@ -77,22 +102,45 @@ def draw():
                 draw_UI()
                 for count in range(len(bubbles)):
                         bubbles[count].draw_agent(mymap.worldmap_screen_position.x,mymap.worldmap_screen_position.y)
+                encounter.check_is_open()
+     
+        if encounter.is_open:
+                p5.loop()
+                encounter.draw_section()
+                for b in encounter.buttons:
+                        b.change_color(mouse_x,mouse_y)
+        
         if begin_section.is_open:
-                #mymap.draw_numpy_map(map_imgs)
+                p5.loop()
                 p5.background(240,230,140) 
                 player.draw_player()
                 begin_section.draw_section()
-        encounter.draw_section()
-        if encounter.is_open:
-                p5.loop()
-                for b in encounter.buttons:
-                        b.change_color(mouse_x,mouse_y)
-        elif begin_section.is_open:
-                p5.loop()
                 for b in begin_section.buttons:
                         b.change_color(mouse_x,mouse_y)
-
-
+        
+        if not end_animation_is_active:        
+                for b in bubbles:
+                        if b.is_on_monster:
+                                p5.loop()
+                                img_nb = mymap.worldmap[b.agent_position_x][b.agent_position_y]
+                                if img_nb != -1:
+                                        p5.image(map_imgs[img_nb], b.agent_position_x * TILESIZE - mymap.worldmap_screen_position.x * TILESIZE, b.agent_position_y * TILESIZE - mymap.worldmap_screen_position.y * TILESIZE,TILESIZE,TILESIZE)
+                                b.sysParticle.add_particle(1)
+                                b.run_particle_system()
+                                system_particle_is_active = True
+                        else:
+                                system_particle_is_active = False
+                                b.empty_particles()
+        
+        if end_animation_is_active:
+                p5.loop
+                p5.background(240,230,140)
+                for b in end_game_anim_flock:
+                        b.run(end_game_anim_flock)
+                p5.text_size(64)
+                p5.fill(0)
+                p5.text("Game Over", (WIDTH/2-140, HEIGHT/2-62))
+                
 def draw_UI():
         with p5.push_matrix():
                 p5.translate(0,HEIGHT-TILESIZE)
@@ -145,17 +193,16 @@ def key_pressed():
                         world_step(0,0)
 #todo a reecrire..
 def mouse_pressed(event):
+        
         if encounter.is_open:
                 if encounter.buttons[1].clicked_button(event.x,event.y):#escape
-                        encounter.is_open=False
-                        encounter.scaling = 0.0
+                        encounter.reset_section()
                         world_step(0,1)
                         player.change_image(9,10)
                 if encounter.buttons[0].clicked_button(event.x,event.y):#attack
                         r = np.random.random_sample()
                         if r>0.50:
-                                encounter.is_open=False
-                                encounter.scaling = 0.0
+                                encounter.reset_section()
                                 world_step(0,1)
                                 player.change_image(9,10)
                                 monsters.pop(encounter.current_monster)          
@@ -164,12 +211,38 @@ def mouse_pressed(event):
                                 draw_UI()
                                 if player.current_number_of_hearts<=0:
                                         encounter.text_action="dead"
+                                        encounter.reset_section()
+                                        end_animation()
                                 else:
                                         encounter.add_text("Nice Try mouhahaha",0)
         elif begin_section.is_open:
                 if begin_section.buttons[0].clicked_button(event.x,event.y):#begin
                         begin_section.is_open=False
 #         print(event.x,":",event.y)
+
+def end_animation():
+        global end_animation_is_active
+        global end_game_anim_flock
+        array_of_tile_position_end_game = []
+        end_animation_is_active = True
+        w = WIDTH
+        h= HEIGHT
+        
+        for i in  range(int(w/TILESIZE)):
+                for j in range(int(h/TILESIZE)):
+                        x = int(i+mymap.worldmap_screen_position.x)
+                        y = int(j+mymap.worldmap_screen_position.y)
+                        array_of_tile_position_end_game.append([x,y])
+
+        for i in array_of_tile_position_end_game:
+                tile_reference_number = mymap.worldmap[i[0]][i[1]]
+                if tile_reference_number != -1:
+                        
+                        end_game_anim_flock.append(Boid(i[0] * TILESIZE - mymap.worldmap_screen_position.x * TILESIZE,i[1] * TILESIZE - mymap.worldmap_screen_position.y * TILESIZE,map_imgs[tile_reference_number]))
+                        #end_game_anim_flock.append(Boid(0,0,map_imgs[tile_reference_number]))
+
+
+
 
 def world_step(x,y):
         player.map_position += p5.Vector(x,y)
@@ -181,11 +254,12 @@ def world_step(x,y):
         p5.redraw()      
 
 def ai_think_or_move():
+        global system_particle_is_active
         for count in range(len(bubbles)):
-                bubbles[count].real_step(bubbles[count].agent_position_x,bubbles[count].agent_position_y)
+                bubbles[count].real_step(bubbles[count].agent_position_x,bubbles[count].agent_position_y,mymap.worldmap_screen_position)
                 #bubbles[count].step_max_by_episode = int(0.25*(abs((len(monsters)-1)-NBOFMONSTER)*STARTINGNUMBEROFMOVESBYEPISODE))
                
-                print(bubbles[count].Q_table[bubbles[count].agent_position_x,bubbles[count].agent_position_y])
+                #print(bubbles[count].Q_table[bubbles[count].agent_position_x,bubbles[count].agent_position_y])
 
 if __name__ == '__main__':
         p5.run()

@@ -1,7 +1,7 @@
 
 import p5
 from settings import *
-
+from Particle_system import *
 class Monster:
     def __init__(self,position_x,position_y,images):
         self.map_position=p5.Vector(position_x,position_y)
@@ -9,6 +9,7 @@ class Monster:
         self.images = images
         self.image_bool = True
         self.image_number = 0
+        
     def draw_monster(self,screen_x,screen_y):
         #p5.image_mode(p5.CORNER)
         #p5.fill(255,64,64)
@@ -21,7 +22,6 @@ class Monster:
         p5.image(self.images[self.image_number].blend(self.images[self.image_number],"blend"),
             (self.map_position.x - screen_x) * TILESIZE,(self.map_position.y - screen_y)*TILESIZE,TILESIZE,TILESIZE)
         self.is_visible = True
-        
     
     def change_image(self):
         if self.image_number >= len(self.images)-1:
