@@ -12,7 +12,7 @@ Take a look at the installation steps here in the p5 installation page
 https://p5.readthedocs.io/en/latest/install.html
 
 Needed Librarys:
-p5
-numpy
-pandas
+p5,
+numpy,
+pandas,
 progressbar
