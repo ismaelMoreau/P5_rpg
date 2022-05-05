@@ -83,8 +83,8 @@ def load_a_set_of_img(path):
         return img
 
 def draw():
-        print(f"frames:{frame_count}")
-        print(f"frames Rate:{frame_rate}")
+        #(f"frames:{frame_count}")
+        #print(f"frames Rate:{frame_rate}")
         global system_particle_is_active
         global tile_count_for_end_animation_x 
         global tile_count_for_end_animation_y 
