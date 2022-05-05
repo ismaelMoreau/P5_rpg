@@ -1,6 +1,6 @@
 # P5_rpg
 see DESIGN DOCUMENT for description 
-
+see Game OVer.mkv and bubble.mkv for demo
 
 
 Installation
